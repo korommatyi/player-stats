@@ -16,4 +16,10 @@
     {:component-did-mount #(show-line-chart id data)
      :display-name "chartjs-component"
      :reagent-render (fn [id data]
-                       [:canvas {:id id :width "700" :height "380"}])}))
+                       [:div {:class "chart-container"
+                              :style {:position "relative"
+                                      :width "100vw"
+                                      :margin "auto"
+                                      :min-width 200
+                                      :flex 1}}
+                        [:canvas {:id id}]])}))
