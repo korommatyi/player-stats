@@ -7,7 +7,8 @@
   [id data]
   (let [context (.getContext (.getElementById js/document id) "2d")
         chart-data {:type "line"
-                    :data data}]
+                    :data data
+                    :options {:tooltips {:mode "index"}}}]
       (js/Chart. context (clj->js chart-data))))
 
 (defn chartjs-component
