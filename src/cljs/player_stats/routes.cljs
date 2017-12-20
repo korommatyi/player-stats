@@ -21,7 +21,7 @@
   ;; --------------------
   ;; define routes here
   (defroute "/" []
-    (re-frame/dispatch [::events/set-active-panel :statistics-panel]))
+    (re-frame/dispatch [::events/set-active-panel :dashboard-panel]))
 
   (defroute "/add-scores" []
     (re-frame/dispatch [::events/set-active-panel :add-scores-panel]))

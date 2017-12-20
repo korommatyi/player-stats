@@ -1,4 +1,4 @@
-(ns player-stats.chartjs-component
+(ns player-stats.dashboard.chartjs-component
   (:require [reagent.core :as reagent]
             [cljsjs.chartjs]
             ))
