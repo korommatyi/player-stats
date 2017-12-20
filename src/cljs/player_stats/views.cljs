@@ -25,10 +25,11 @@
 
 (defn simple-nav []
   (let [is-open? (reagent/atom false)
-        close #(reset! is-open? false)]
+        close #(reset! is-open? false)
+        title (re-frame/subscribe [::subs/active-panel-human-friendly])]
     (fn []
       [:div
-       [mui/AppBar {:title "Dashboard" :onLeftIconButtonTouchTap #(reset! is-open? true)}]
+       [mui/AppBar {:title @title :onLeftIconButtonTouchTap #(reset! is-open? true)}]
        [mui/Drawer {:open @is-open? :docked false}
         [mui/List
          [mui/ListItem {:leftIcon (el (icon "equalizer"))
