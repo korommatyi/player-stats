@@ -16,3 +16,15 @@
  ::init-known-names
  (fn [db _]
    (assoc-in db [:add-scores-data :known-names] ["Aaaa" "Bbbb" "Cccc"])))
+
+(re-frame/reg-event-db
+ ::change-result
+ (fn [db [_ r]]
+   (assoc-in db [:add-scores-data :result] r)))
+
+(re-frame/reg-event-db
+ ::add-to-team
+ (fn [db [_ team id name]]
+   (if (seq name)
+     (update-in db [:add-scores-data team] assoc id name)
+     (update-in db [:add-scores-data team] dissoc id))))

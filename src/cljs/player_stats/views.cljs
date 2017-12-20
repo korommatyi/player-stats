@@ -8,20 +8,18 @@
             [cljsjs.material-ui]
             [cljsjs.react]
             [cljsjs.react.dom]
+            [player-stats.mui-helpers :as muih]
             ))
 
 
 (def el reagent/as-element)
-(defn icon [nme] [mui/FontIcon {:className "material-icons"} nme])
-(defn color [nme] (aget mui/colors nme))
 
 (defonce theme-defaults {:muiTheme (mui/getMuiTheme
-                                    (-> mui/darkBaseTheme
+                                    (-> mui/lightBaseTheme
                                         (js->clj :keywordize-keys true)
-                                        (update :palette merge {:primary1Color (color "amber500")
-                                                                :primary2Color (color "amber700")})
+                                        (update :palette merge {:primary1Color (muih/color "blueGrey500")
+                                                                :primary2Color (muih/color "blueGrey700")})
                                         clj->js))})
-
 
 (defn simple-nav []
   (let [is-open? (reagent/atom false)
@@ -32,11 +30,11 @@
        [mui/AppBar {:title @title :onLeftIconButtonTouchTap #(reset! is-open? true)}]
        [mui/Drawer {:open @is-open? :docked false}
         [mui/List
-         [mui/ListItem {:leftIcon (el (icon "equalizer"))
+         [mui/ListItem {:leftIcon (el (muih/icon "equalizer"))
                         :on-click (fn [] (close))
                         :href "#/"}
           "Dashboard"]
-         [mui/ListItem {:leftIcon (el (icon "add circle"))
+         [mui/ListItem {:leftIcon (el (muih/icon "add circle"))
                         :on-click (fn [] (close))
                         :href "#/add-scores"}
           "Add Scores"]]]])))
