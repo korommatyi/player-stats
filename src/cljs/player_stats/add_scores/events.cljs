@@ -19,8 +19,12 @@
 
 (re-frame/reg-event-db
  ::change-result
- (fn [db [_ r]]
-   (assoc-in db [:add-scores-data :result] r)))
+ (fn [db _]
+   (let [vals [:team-a-won :team-b-won :draw :team-a-won]
+         key [:add-scores-data :result]
+         current-value (get-in db key)
+         new-value (vals (+ 1 (.indexOf vals current-value)))]
+     (assoc-in db key new-value))))
 
 (re-frame/reg-event-db
  ::add-to-team
