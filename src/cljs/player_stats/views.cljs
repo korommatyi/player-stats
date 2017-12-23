@@ -11,9 +11,6 @@
             [player-stats.mui-helpers :as muih]
             ))
 
-
-(def el reagent/as-element)
-
 (defonce theme-defaults {:muiTheme (mui/getMuiTheme
                                     (-> mui/lightBaseTheme
                                         (js->clj :keywordize-keys true)
@@ -30,11 +27,11 @@
        [mui/AppBar {:title @title :onLeftIconButtonTouchTap #(reset! is-open? true)}]
        [mui/Drawer {:open @is-open? :docked false}
         [mui/List
-         [mui/ListItem {:leftIcon (el (muih/icon "equalizer"))
+         [mui/ListItem {:leftIcon (muih/el (muih/icon "equalizer"))
                         :on-click (fn [] (close))
                         :href "#/"}
           "Dashboard"]
-         [mui/ListItem {:leftIcon (el (muih/icon "add circle"))
+         [mui/ListItem {:leftIcon (muih/el (muih/icon "add circle"))
                         :on-click (fn [] (close))
                         :href "#/add-scores"}
           "Add Scores"]]]])))

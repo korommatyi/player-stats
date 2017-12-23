@@ -31,7 +31,6 @@
         get-num #(int (last (cstr/split (name %) #"-")))
         nums (map get-num ks)
          next (if (seq nums) (+ 1 (apply max nums)) 1)]
-     (println team " " next)
      (keyword (str (name team) "-" next)))))
 
 (re-frame/reg-sub

@@ -37,20 +37,30 @@
 (defn- save [db team id name]
   (update-in db [:add-scores-data team] assoc id name))
 
-(re-frame/reg-event-db
+(defn- set-last-edited [db team]
+  (update db :add-scores-data assoc :last-edited team))
+
+(re-frame/reg-event-fx
  ::add-to-team
- (fn [db [_ team name]]
-   (let [db2 (update-in db [:add-scores-data :last-edited] team)
+ (fn [cfx [_ team n]]
+   (let [db (:db cfx)
+         db2 (set-last-edited db team)
          id (next-id (get-in db2 [:add-scores-data team]) team)]
-     (save db2 team id name))))
+     {:db (save db2 team id n)
+      :focus (str "new-input-" (name team))})))
 
 (re-frame/reg-event-db
  ::save
  (fn [db [_ team id name]]
-   (let [db2 (update-in db [:add-scores-data :last-edited] nil)]
+   (let [db2 (set-last-edited db team)]
      (save db2 team id name))))
 
 (re-frame/reg-event-db
  ::delete
  (fn [db [_ team id]]
    (update-in db [:add-scores-data team] dissoc id)))
+
+(re-frame/reg-fx
+ :focus
+ (fn [id]
+   (.focus (.getElementById js/document id))))

@@ -18,8 +18,9 @@
         save #(let [v (-> @val str str/trim)]
                 (when (seq v) (on-save v))
                 (stop))]
-    (fn [{:keys [known-names focus]}]
-      [mui/AutoComplete {:hintText "Enter a name"
+    (fn [{:keys [known-names focus id]}]
+      [mui/AutoComplete {:id id
+                         :hintText "Enter a name"
                          :searchText @val
                          :dataSource known-names
                          :filter (fn [st key]
@@ -39,24 +40,23 @@
 (defn name-item [{:keys [team]}]
   (let [editing (reagent/atom false)]
     (fn [{:keys [id name known-names]}]
-      [:li
-        [:div
-          [:label
-            {:on-double-click #(reset! editing true)}
-            name]
-         [mui/IconButton {:tooltip "Delete"
-                          :onClick #(re-frame/dispatch [::events/delete team id])}
-          [muih/icon "delete"]]]
-        (when @editing
-          [input {:name name :known-names known-names :focus true
-                  :on-save #(re-frame/dispatch [::events/save team id %])
-                  :on-stop #(reset! editing false)
-                  }])])))
+      [mui/ListItem {:primaryText name
+                     :rightIconButton (muih/el [mui/IconButton
+                                          {:tooltip "Delete"
+                                           :onClick #(re-frame/dispatch [::events/delete team id])}
+                                          [muih/icon "delete"]])
+                     :onClick #(reset! editing true)}
+       (when @editing
+         [input {:name name :known-names known-names :focus true
+                 :on-save #(re-frame/dispatch [::events/save team id %])
+                 :on-stop #(reset! editing false)
+                 :id id
+                 }])])))
 
 (defn name-entry [team]
   (let [known-names @(re-frame/subscribe [::subs/known-names])
         focus? @(re-frame/subscribe [::subs/focus? team])]
-    [input {:id (str "new-todo-" (name team))
+    [input {:id (str "new-input-" (name team))
             :on-save #(re-frame/dispatch [::events/add-to-team team %])
             :known-names known-names
             :focus focus?}]))
@@ -66,7 +66,7 @@
         known-names @(re-frame/subscribe [::subs/known-names])]
     [:div
      [name-entry t]
-     [:ul
+     [mui/List
       (for [[id name] entries]
         ^{:key id} [name-item {:name name :id id :known-names known-names :team t}])]]))
 
@@ -81,6 +81,10 @@
 
 (defn add-scores-panel []
   [:div {:style {:display "flex" :flex-flow "row wrap" :justify-content "space-around"}}
-   [team :team-a]
+   [:div
+    [:h1 "The awesomes:"]
+     [team :team-a]]
    [result-indicator]
-   [team :team-b]])
+   [:div
+    [:h1 "The geniuses:"]
+    [team :team-b]]])
