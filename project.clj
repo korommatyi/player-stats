@@ -3,9 +3,10 @@
                  [org.clojure/clojurescript "1.9.908"]
                  [reagent "0.7.0" :exclusions [cljsjs/react-dom cljsjs/react]]
                  [re-frame "0.10.2"]
-                 [secretary "1.2.3"]
+                 [venantius/accountant "0.2.3"]
                  [reagent-material-ui "0.2.5"]
-                 [cljsjs/chartjs "2.6.0-0"]]
+                 [cljsjs/chartjs "2.6.0-0"]
+                 [cljsjs/firebase "4.4.0-1"]]
 
   :plugins [[lein-cljsbuild "1.1.5"]]
 

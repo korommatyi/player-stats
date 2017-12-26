@@ -1,12 +1,14 @@
 (ns player-stats.events
   (:require [re-frame.core :as re-frame]
             [player-stats.db :as db]
-            [player-stats.add-scores.events :as as-events]))
+            [player-stats.add-scores.events :as as-events]
+            [cljsjs.firebase :as firebase]))
 
-(re-frame/reg-event-db
- ::initialize-db
+(re-frame/reg-event-fx
+ ::initialize
  (fn  [_ _]
-   db/default-db))
+   {:db db/default-db
+    ::login nil}))
 
 (defn init-panel [panel-name]
   (case panel-name
@@ -22,3 +24,20 @@
 (re-frame/reg-event-db
  ::do-nothing
  (fn [db _] db))
+
+(def provider (js/firebase.auth.GoogleAuthProvider.))
+
+(re-frame/reg-fx
+ ::login
+ (fn [_]
+   (-> (js/firebase.auth)
+    (.signInWithPopup provider)
+    (.then (fn [result]
+             (let [user (.-user result)
+                   email (.-email user)]
+               (re-frame/dispatch [::login-user email])))))))
+
+(re-frame/reg-event-db
+ ::login-user
+ (fn [db [_ email]]
+   (assoc db :user-id email)))

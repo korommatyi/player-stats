@@ -29,12 +29,22 @@
         [mui/List
          [mui/ListItem {:leftIcon (muih/el (muih/icon "equalizer"))
                         :on-click (fn [] (close))
-                        :href "#/"}
+                        :href "/dashboard"}
           "Dashboard"]
          [mui/ListItem {:leftIcon (muih/el (muih/icon "add circle"))
                         :on-click (fn [] (close))
-                        :href "#/add-scores"}
+                        :href "/add-scores"}
           "Add Scores"]]]])))
+
+(defn loading-page []
+  [:div {:style {:display "flex"
+                 :flex-direction "column"
+                 :justify-content "center"}}
+   [:div {:style {:display "flex"
+                  :flex-direction "row"
+                  :justify-content "center"}}
+    [mui/RefreshIndicator {:size 100
+                           :status "loading"}]]])
 
 ;; main
 
@@ -42,6 +52,7 @@
   (case panel-name
     :dashboard-panel [dash/dashboard-panel]
     :add-scores-panel [a-s/add-scores-panel]
+    :loading-panel [loading-page]
     [:div]))
 
 (defn show-panel [panel-name]

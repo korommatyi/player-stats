@@ -4,8 +4,8 @@
             [player-stats.events :as events]
             [player-stats.routes :as routes]
             [player-stats.views :as views]
-            [player-stats.config :as config]))
-
+            [player-stats.config :as config]
+            [player-stats.firebase-config :as fb-config]))
 
 (defn dev-setup []
   (when config/debug?
@@ -18,7 +18,8 @@
                   (.getElementById js/document "app")))
 
 (defn ^:export init []
-  (routes/app-routes)
-  (re-frame/dispatch-sync [::events/initialize-db])
+  (js/firebase.initializeApp fb-config/config)
+  (re-frame/dispatch-sync [::events/initialize])
+  (routes/init-routes)
   (dev-setup)
   (mount-root))
