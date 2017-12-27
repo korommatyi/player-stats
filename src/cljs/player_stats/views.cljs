@@ -36,23 +36,12 @@
                         :href "/add-scores"}
           "Add Scores"]]]])))
 
-(defn loading-page []
-  [:div {:style {:display "flex"
-                 :flex-direction "column"
-                 :justify-content "center"}}
-   [:div {:style {:display "flex"
-                  :flex-direction "row"
-                  :justify-content "center"}}
-    [mui/RefreshIndicator {:size 100
-                           :status "loading"}]]])
-
 ;; main
 
 (defn- panels [panel-name]
   (case panel-name
     :dashboard-panel [dash/dashboard-panel]
     :add-scores-panel [a-s/add-scores-panel]
-    :loading-panel [loading-page]
     [:div]))
 
 (defn show-panel [panel-name]

@@ -37,3 +37,8 @@
  ::focus?
  (fn [_ _] (re-frame/subscribe [::data]))
  (fn [data [_ team]] (= (:last-edited data) team)))
+
+(re-frame/reg-sub
+ ::date
+ (fn [_ _] (re-frame/subscribe [::data]))
+ (fn [data _] (:date data)))

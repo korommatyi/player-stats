@@ -6,7 +6,7 @@
                  [venantius/accountant "0.2.3"]
                  [reagent-material-ui "0.2.5"]
                  [cljsjs/chartjs "2.6.0-0"]
-                 [cljsjs/firebase "4.4.0-1"]]
+                 [cljsjs/firebase "4.8.1-0"]]
 
   :plugins [[lein-cljsbuild "1.1.5"]]
 

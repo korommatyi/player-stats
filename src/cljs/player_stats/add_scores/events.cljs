@@ -3,13 +3,16 @@
             [player-stats.add-scores.db :as as-db]
             [clojure.string :as str]))
 
+(defn- init [db]
+  (assoc db :add-scores-data as-db/add-scores-db))
+
 (re-frame/reg-event-fx
  ::init-if-needed
  (fn [cfx _]
    (let [db (:db cfx)
          needs-init? (not (contains? db :add-scores-data))]
      (if needs-init?
-       {:db (assoc db :add-scores-data as-db/add-scores-db)
+       {:db (init db)
         :dispatch [::init-known-names]}
        {:db db}))))
 
@@ -34,8 +37,8 @@
         next (if (seq nums) (+ 1 (apply max nums)) 1)]
     (keyword (str (name prefix) "-" next))))
 
-(defn- save [db team id name]
-  (update-in db [:add-scores-data team] assoc id name))
+(defn- save-player [db team id name]
+  (assoc-in db [:add-scores-data team id] name))
 
 (defn- set-last-edited [db team]
   (update db :add-scores-data assoc :last-edited team))
@@ -46,21 +49,35 @@
    (let [db (:db cfx)
          db2 (set-last-edited db team)
          id (next-id (get-in db2 [:add-scores-data team]) team)]
-     {:db (save db2 team id n)
+     {:db (save-player db2 team id n)
       :focus (str "new-input-" (name team))})))
 
 (re-frame/reg-event-db
- ::save
+ ::save-edited-player
  (fn [db [_ team id name]]
    (let [db2 (set-last-edited db team)]
-     (save db2 team id name))))
+     (save-player db2 team id name))))
 
 (re-frame/reg-event-db
  ::delete
  (fn [db [_ team id]]
    (update-in db [:add-scores-data team] dissoc id)))
 
+(re-frame/reg-event-db
+ ::set-date
+ (fn [db [_ date]]
+   (assoc-in db [:add-scores-data :date] date)))
+
 (re-frame/reg-fx
  :focus
  (fn [id]
    (.focus (.getElementById js/document id))))
+
+(re-frame/reg-event-fx
+ ::save
+ (fn [cfx _]
+   (let [db (:db cfx)
+         old-data (:add-scores-data db)]
+     (println old-data)
+     {:db (init db)
+      :dispatch [::init-known-names]})))

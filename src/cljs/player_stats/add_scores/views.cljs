@@ -48,7 +48,7 @@
                      :onClick #(reset! editing true)}
        (when @editing
          [input {:name name :known-names known-names :focus true
-                 :on-save #(re-frame/dispatch [::events/save team id %])
+                 :on-save #(re-frame/dispatch [::events/save-edited-player team id %])
                  :on-stop #(reset! editing false)
                  :id id
                  }])])))
@@ -79,12 +79,31 @@
       :team-b-won [muih/icon "keyboard_arrow_left"]
       [muih/icon "drag_handle"])]])
 
+(defn date-picker []
+  (let [date @(re-frame/subscribe [::subs/date])]
+    [mui/DatePicker {:hintText "Date"
+                     :container "inline"
+                     :value date
+                     :onChange (fn [_ d] (re-frame/dispatch [::events/set-date d]))
+                     :maxDate (js/Date.)}]))
+
 (defn add-scores-panel []
-  [:div {:style {:display "flex" :flex-flow "row wrap" :justify-content "space-around"}}
+  [:div {:style {:display "flex" :flex-flow "column" :justify-content "center" :align-items "center"}}
    [:div
-    [:h1 "The awesomes:"]
-     [team :team-a]]
-   [result-indicator]
-   [:div
-    [:h1 "The geniuses:"]
-    [team :team-b]]])
+    [:div {:style {:display "flex" :flex-flow "row wrap" :justify-content "center"}}
+     [:div
+      [:h1 "The awesomes:"]
+      [team :team-a]]
+     [result-indicator]
+     [:div
+     [:h1 "The geniuses:"]
+      [team :team-b]]]
+    [:div {:style {:display "flex" :flex-flow "row" :align-items "center" :justify-content "space-between"}}
+     [:div {:style {:display "flex" :flex-flow "row" :align-items "center"}}
+      [:span {:style {:margin 12 }}
+       "Results for:"]
+      [date-picker]]
+     [mui/RaisedButton {:style {:margin 12}
+                        :label "Save"
+                        :on-click #(re-frame/dispatch [::events/save])}]]
+   ]])
