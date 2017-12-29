@@ -42,3 +42,15 @@
  ::date
  (fn [_ _] (re-frame/subscribe [::data]))
  (fn [data _] (:date data)))
+
+(re-frame/reg-sub
+ ::valid?
+ (fn [_ _]
+   {:team-a (re-frame/subscribe [::team :team-a])
+    :team-b (re-frame/subscribe [::team :team-b])
+    :date (re-frame/subscribe [::date])})
+ (fn [data _]
+   (let [a (:team-a data)
+         b (:team-b data)
+         d (:date data)]
+     (and (seq a) (seq b) (boolean d)))))

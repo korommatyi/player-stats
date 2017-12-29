@@ -30,12 +30,16 @@
 (re-frame/reg-fx
  ::login
  (fn [_]
-   (-> (js/firebase.auth)
-    (.signInWithPopup provider)
-    (.then (fn [result]
-             (let [user (.-user result)
-                   email (.-email user)]
-               (re-frame/dispatch [::login-user email])))))))
+   (let [auth (js/firebase.auth)
+         current-user (.-currentUser auth)]
+     (if current-user
+       (re-frame/dispatch [::login-user (.-email current-user)])
+       (-> auth
+           (.signInWithPopup provider)
+           (.then (fn [result]
+                    (let [user (.-user result)
+                          email (.-email user)]
+                      (re-frame/dispatch [::login-user email])))))))))
 
 (re-frame/reg-event-db
  ::login-user

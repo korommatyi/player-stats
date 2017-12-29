@@ -18,8 +18,8 @@
                   (.getElementById js/document "app")))
 
 (defn ^:export init []
+  (dev-setup)
   (js/firebase.initializeApp fb-config/config)
   (re-frame/dispatch-sync [::events/initialize])
   (routes/init-routes)
-  (dev-setup)
   (mount-root))

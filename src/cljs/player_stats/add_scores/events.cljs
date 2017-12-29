@@ -1,10 +1,26 @@
 (ns player-stats.add-scores.events
   (:require [re-frame.core :as re-frame]
             [player-stats.add-scores.db :as as-db]
-            [clojure.string :as str]))
+            [clojure.string :as str]
+            [cljsjs.firebase :as fb]))
 
 (defn- init [db]
   (assoc db :add-scores-data as-db/add-scores-db))
+
+(re-frame/reg-event-db
+ ::set-known-names
+ (fn [db [_ names]]
+   (assoc-in db [:add-scores-data :known-names] names)))
+
+(re-frame/reg-fx
+ :init-known-names
+ (fn [_]
+   (let [fb-db (js/firebase.database)
+         known-names (.once (.ref fb-db "known_names") "value")]
+     (.then known-names
+            (fn [snapshot]
+              (let [val (js->clj (.val snapshot))]
+                (re-frame/dispatch [::set-known-names val])))))))
 
 (re-frame/reg-event-fx
  ::init-if-needed
@@ -13,13 +29,8 @@
          needs-init? (not (contains? db :add-scores-data))]
      (if needs-init?
        {:db (init db)
-        :dispatch [::init-known-names]}
+        :init-known-names nil}
        {:db db}))))
-
-(re-frame/reg-event-db
- ::init-known-names
- (fn [db _]
-   (assoc-in db [:add-scores-data :known-names] ["Alice" "Bob" "Cecil" "Dean"])))
 
 (re-frame/reg-event-db
  ::change-result
@@ -73,11 +84,28 @@
  (fn [id]
    (.focus (.getElementById js/document id))))
 
+(defn- normalize-data [data]
+  (let [normalize-team #(sort (vals %))
+        normalize-date (fn [d] (str (.getFullYear d) "/" (+ 1 (.getMonth d)) "/" (.getDate d)))]
+    {:team-a (normalize-team (:team-a data))
+     :team-b (normalize-team (:team-b data))
+     :result (:result data)
+     :date (normalize-date (:date data))}))
+
+(re-frame/reg-fx
+ :save-to-fb
+ (fn [data]
+   (let [fb-db (js/firebase.database)
+         d (normalize-data data)
+         k (hash d)
+         v (clj->js d)]
+     (.set (.ref fb-db (str "results/" k)) v))))
+
 (re-frame/reg-event-fx
  ::save
  (fn [cfx _]
    (let [db (:db cfx)
          old-data (:add-scores-data db)]
-     (println old-data)
      {:db (init db)
-      :dispatch [::init-known-names]})))
+      :init-known-names nil
+      :save-to-fb old-data})))
