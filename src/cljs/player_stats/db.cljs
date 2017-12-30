@@ -1,5 +1,7 @@
-(ns player-stats.db)
+(ns player-stats.db
+  (:require [player-stats.add-scores.db :as as-db]))
 
 (def default-db
-  {:name "re-frame"
-   :active-panel :dashboard-panel})
+  {:active-panel :dashboard-panel
+   :raw-data []
+   :add-scores-data as-db/add-scores-db})

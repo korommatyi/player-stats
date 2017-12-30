@@ -4,5 +4,4 @@
   {:team-a {}
    :team-b {}
    :result :team-a-won
-   :known-names []
    :last-edited :team-a})

@@ -4,44 +4,52 @@
             [player-stats.add-scores.events :as as-events]
             [cljsjs.firebase :as firebase]))
 
-(re-frame/reg-event-fx
- ::initialize
- (fn  [_ _]
-   {:db db/default-db
-    ::login nil}))
-
-(defn init-panel [panel-name]
-  (case panel-name
-    :add-scores-panel [::as-events/init-if-needed]
-    [::do-nothing]))
-
-(re-frame/reg-event-fx
- ::set-active-panel
- (fn [cfx [_ active-panel]]
-   {:db (assoc (:db cfx) :active-panel active-panel)
-    :dispatch (init-panel active-panel)}))
-
 (re-frame/reg-event-db
- ::do-nothing
- (fn [db _] db))
+ ::init-db
+ (fn [_ _] db/default-db))
 
-(def provider (js/firebase.auth.GoogleAuthProvider.))
+(re-frame/reg-event-fx
+ ::init-firebase-connection
+ (fn [_ _] {:login-and-start-listening-to-data nil}))
 
 (re-frame/reg-fx
- ::login
+ :login-and-start-listening-to-data
  (fn [_]
    (let [auth (js/firebase.auth)
+         provider (js/firebase.auth.GoogleAuthProvider.)
          current-user (.-currentUser auth)]
      (if current-user
-       (re-frame/dispatch [::login-user (.-email current-user)])
+       (re-frame/dispatch [::register-logged-in-user (.-email current-user)])
        (-> auth
            (.signInWithPopup provider)
            (.then (fn [result]
                     (let [user (.-user result)
                           email (.-email user)]
-                      (re-frame/dispatch [::login-user email])))))))))
+                      (re-frame/dispatch [::register-logged-in-user email])))))))))
+
+(re-frame/reg-event-fx
+ ::register-logged-in-user
+ (fn [{:keys [db]} [_ email]]
+   {:db (assoc db :user-id email)
+    :start-listening-to-firebase nil}))
+
+(re-frame/reg-fx
+ :start-listening-to-firebase
+ (fn [_]
+   (let [db (js/firebase.database)
+         results (.ref db "/results")]
+     (.on results "value"
+          (fn [snapshot] (re-frame/dispatch [::update-raw-data (.val snapshot)]))))))
 
 (re-frame/reg-event-db
- ::login-user
- (fn [db [_ email]]
-   (assoc db :user-id email)))
+ ::update-raw-data
+ (fn [db [_ data]]
+   (let [d (js->clj data :keywordize-keys true)
+         v (vals d)
+         raw-data (sort-by :date v)]
+     (assoc db :raw-data raw-data))))
+
+(re-frame/reg-event-db
+ ::set-active-panel
+ (fn [db [_ active-panel]]
+   (assoc db :active-panel active-panel)))

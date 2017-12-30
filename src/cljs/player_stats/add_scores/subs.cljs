@@ -1,6 +1,7 @@
 (ns player-stats.add-scores.subs
   (:require [re-frame.core :as re-frame]
-            [clojure.string :as cstr]))
+            [clojure.string :as str]
+            [player-stats.subs :as base-subs]))
 
 (re-frame/reg-sub
  ::data
@@ -20,15 +21,16 @@
 
 (re-frame/reg-sub
  ::known-names
- (fn [_ _] (re-frame/subscribe [::data]))
- (fn [data _ _] (:known-names data)))
+ (fn [_ _] (re-frame/subscribe [::base-subs/raw-data]))
+ (fn [data _ _]
+   (sort (set (flatten (for [r data] [(:team-a r) (:team-b r)]))))))
 
 (re-frame/reg-sub
  ::next-id
  (fn [[_ team] _] (re-frame/subscribe [::team team]))
  (fn [entries [_ team]]
    (let [ks (keys entries)
-        get-num #(int (last (cstr/split (name %) #"-")))
+        get-num #(int (last (str/split (name %) #"-")))
         nums (map get-num ks)
          next (if (seq nums) (+ 1 (apply max nums)) 1)]
      (keyword (str (name team) "-" next)))))

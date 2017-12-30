@@ -20,3 +20,7 @@
    (let [raw (name panel-keyword)
          wo-panel (subs raw 0 (- (count raw) 6))]
      (str/join " " (map str/capitalize (str/split wo-panel #"-"))))))
+
+(re-frame/reg-sub
+ ::raw-data
+ (fn [db _] (:raw-data db)))

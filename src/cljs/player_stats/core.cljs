@@ -20,6 +20,7 @@
 (defn ^:export init []
   (dev-setup)
   (js/firebase.initializeApp fb-config/config)
-  (re-frame/dispatch-sync [::events/initialize])
+  (re-frame/dispatch-sync [::events/init-db])
+  (re-frame/dispatch [::events/init-firebase-connection])
   (routes/init-routes)
   (mount-root))

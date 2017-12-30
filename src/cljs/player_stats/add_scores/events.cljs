@@ -4,34 +4,6 @@
             [clojure.string :as str]
             [cljsjs.firebase :as fb]))
 
-(defn- init [db]
-  (assoc db :add-scores-data as-db/add-scores-db))
-
-(re-frame/reg-event-db
- ::set-known-names
- (fn [db [_ names]]
-   (assoc-in db [:add-scores-data :known-names] names)))
-
-(re-frame/reg-fx
- :init-known-names
- (fn [_]
-   (let [fb-db (js/firebase.database)
-         known-names (.once (.ref fb-db "known_names") "value")]
-     (.then known-names
-            (fn [snapshot]
-              (let [val (js->clj (.val snapshot))]
-                (re-frame/dispatch [::set-known-names val])))))))
-
-(re-frame/reg-event-fx
- ::init-if-needed
- (fn [cfx _]
-   (let [db (:db cfx)
-         needs-init? (not (contains? db :add-scores-data))]
-     (if needs-init?
-       {:db (init db)
-        :init-known-names nil}
-       {:db db}))))
-
 (re-frame/reg-event-db
  ::change-result
  (fn [db _]
@@ -86,7 +58,10 @@
 
 (defn- normalize-data [data]
   (let [normalize-team #(sort (vals %))
-        normalize-date (fn [d] (str (.getFullYear d) "/" (+ 1 (.getMonth d)) "/" (.getDate d)))]
+        get-day (fn [d]
+                  (let [day (.getDate d)]
+                    (if (> day 9) (str day) (str "0" day))))
+        normalize-date (fn [d] (str (.getFullYear d) "/" (+ 1 (.getMonth d)) "/" (get-day d)))]
     {:team-a (normalize-team (:team-a data))
      :team-b (normalize-team (:team-b data))
      :result (:result data)
@@ -106,6 +81,5 @@
  (fn [cfx _]
    (let [db (:db cfx)
          old-data (:add-scores-data db)]
-     {:db (init db)
-      :init-known-names nil
+     {:db (assoc db :add-scores-data as-db/add-scores-db)
       :save-to-fb old-data})))
