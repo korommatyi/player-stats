@@ -99,11 +99,11 @@
    [:div
     [:div {:style {:display "flex" :flex-flow "row wrap" :justify-content "center"}}
      [:div
-      [:h1 "The awesomes:"]
+      [:h1 "The Awesomes:"]
       [team :team-a]]
      [result-indicator]
      [:div
-     [:h1 "The geniuses:"]
+     [:h1 "The Geniuses:"]
       [team :team-b]]]
     [:div {:style {:display "flex" :flex-flow "row" :align-items "center" :justify-content "space-between"}}
      [:div {:style {:display "flex" :flex-flow "row" :align-items "center"}}

@@ -4,6 +4,7 @@
             [player-stats.subs :as subs]
             [player-stats.dashboard.views :as dash]
             [player-stats.add-game.views :as ag]
+            [player-stats.games.views :as games]
             [reagent-material-ui.core :as mui]
             [cljsjs.material-ui]
             [cljsjs.react]
@@ -34,7 +35,11 @@
          [mui/ListItem {:leftIcon (muih/el (muih/icon "add circle"))
                         :on-click (fn [] (close))
                         :href "/add-game"}
-          "Add Game"]]]])))
+          "Add Game"]
+         [mui/ListItem {:leftIcon (muih/el (muih/icon "list"))
+                        :on-click (fn [] (close))
+                        :href "/games"}
+          "Games"]]]])))
 
 ;; main
 
@@ -42,6 +47,7 @@
   (case panel-name
     :dashboard-panel [dash/dashboard-panel]
     :add-game-panel [ag/add-game-panel]
+    :games-panel [games/games-panel]
     [:div]))
 
 (defn show-panel [panel-name]
