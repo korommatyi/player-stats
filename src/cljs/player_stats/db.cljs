@@ -1,7 +1,7 @@
 (ns player-stats.db
-  (:require [player-stats.add-scores.db :as as-db]))
+  (:require [player-stats.add-game.db :as ag-db]))
 
 (def default-db
   {:active-panel :dashboard-panel
    :raw-data []
-   :add-scores-data as-db/add-scores-db})
+   :add-game-data ag-db/add-game-db})

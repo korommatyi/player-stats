@@ -1,13 +1,13 @@
-(ns player-stats.add-scores.views
+(ns player-stats.add-game.views
   (:require [re-frame.core :as re-frame]
             [reagent.core :as reagent]
             [reagent-material-ui.core :as mui]
             [cljsjs.material-ui]
             [cljsjs.react]
             [cljsjs.react.dom]
-            [player-stats.add-scores.subs :as subs]
+            [player-stats.add-game.subs :as subs]
             [player-stats.mui-helpers :as muih]
-            [player-stats.add-scores.events :as events]
+            [player-stats.add-game.events :as events]
             [clojure.string :as str]
             ))
 
@@ -94,7 +94,7 @@
                        :on-click #(re-frame/dispatch [::events/save])
                        :disabled (not valid?)}]))
 
-(defn add-scores-panel []
+(defn add-game-panel []
   [:div {:style {:display "flex" :flex-flow "column" :justify-content "center" :align-items "center"}}
    [:div
     [:div {:style {:display "flex" :flex-flow "row wrap" :justify-content "center"}}

@@ -1,4 +1,4 @@
-(ns player-stats.add-scores.subs
+(ns player-stats.add-game.subs
   (:require [re-frame.core :as re-frame]
             [clojure.string :as str]
             [player-stats.subs :as base-subs]))
@@ -6,7 +6,7 @@
 (re-frame/reg-sub
  ::data
  (fn [db]
-   (:add-scores-data db)))
+   (:add-game-data db)))
 
 (re-frame/reg-sub
  ::team

@@ -1,6 +1,6 @@
-(ns player-stats.add-scores.db)
+(ns player-stats.add-game.db)
 
-(def add-scores-db
+(def add-game-db
   {:team-a {}
    :team-b {}
    :result :team-a-won

@@ -1,7 +1,6 @@
 (ns player-stats.events
   (:require [re-frame.core :as re-frame]
             [player-stats.db :as db]
-            [player-stats.add-scores.events :as as-events]
             [cljsjs.firebase :as firebase]))
 
 (re-frame/reg-event-db

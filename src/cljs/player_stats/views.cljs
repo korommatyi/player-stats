@@ -3,7 +3,7 @@
             [reagent.core :as reagent]
             [player-stats.subs :as subs]
             [player-stats.dashboard.views :as dash]
-            [player-stats.add-scores.views :as a-s]
+            [player-stats.add-game.views :as ag]
             [reagent-material-ui.core :as mui]
             [cljsjs.material-ui]
             [cljsjs.react]
@@ -33,15 +33,15 @@
           "Dashboard"]
          [mui/ListItem {:leftIcon (muih/el (muih/icon "add circle"))
                         :on-click (fn [] (close))
-                        :href "/add-scores"}
-          "Add Scores"]]]])))
+                        :href "/add-game"}
+          "Add Game"]]]])))
 
 ;; main
 
 (defn- panels [panel-name]
   (case panel-name
     :dashboard-panel [dash/dashboard-panel]
-    :add-scores-panel [a-s/add-scores-panel]
+    :add-game-panel [ag/add-game-panel]
     [:div]))
 
 (defn show-panel [panel-name]

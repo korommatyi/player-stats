@@ -10,6 +10,6 @@
                    (case path
                      "/" (accountant/navigate! "/dashboard")
                      "/dashboard" (re-frame/dispatch [::events/set-active-panel :dashboard-panel])
-                     "/add-scores" (re-frame/dispatch [::events/set-active-panel :add-scores-panel])))
+                     "/add-game" (re-frame/dispatch [::events/set-active-panel :add-game-panel])))
     :path-exists? (fn [path] true)})
   (accountant/dispatch-current!))
