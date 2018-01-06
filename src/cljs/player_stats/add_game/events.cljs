@@ -51,11 +51,6 @@
  (fn [db [_ date]]
    (assoc-in db [:add-game-data :date] date)))
 
-(re-frame/reg-fx
- :focus
- (fn [id]
-   (.focus (.getElementById js/document id))))
-
 (defn- normalize-data [data]
   (let [normalize-team #(sort (vals %))
         get-day (fn [d]

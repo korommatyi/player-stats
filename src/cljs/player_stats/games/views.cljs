@@ -23,18 +23,18 @@
 
 (defn games-table []
   (let [games @(re-frame/subscribe [::subs/raw-data])]
-    [mui/Table
+    [mui/Table {:selectable false}
      [mui/TableHeader {:adjustForCheckbox false :displaySelectAll false}
       [mui/TableRow
        [mui/TableHeaderColumn "Date"]
        [mui/TableHeaderColumn "The Awesomes"]
        [mui/TableHeaderColumn]
        [mui/TableHeaderColumn "The Geniuses"]]]
-     [mui/TableBody
+     [mui/TableBody {:showRowHover true :displayRowCheckbox false}
       (for [game games]
         ^{:key (hash game)} [game-entry game])]]))
 
 (defn games-panel []
-  [:div {:style {:display "flex"}}
-   [:div {:style {:margin "auto"}}
+  [:div {:style {:display "flex" :align-items "center"}}
+   [:div {:style {:margin "auto 10%"}}
     [games-table]]])

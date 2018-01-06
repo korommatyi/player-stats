@@ -52,3 +52,8 @@
  ::set-active-panel
  (fn [db [_ active-panel]]
    (assoc db :active-panel active-panel)))
+
+(re-frame/reg-fx
+ :focus
+ (fn [id]
+   (.focus (.getElementById js/document id))))
