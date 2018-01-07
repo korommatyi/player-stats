@@ -57,7 +57,37 @@
       (let [stat (reduce update start dataset)]
         (to-rate stat)))))
 
-(def metric-name-to-fn {:win-rate win-rates})
+(defn team-rating [player-ratings team]
+  (apply + (for [n team] (player-ratings n))))
+
+(defn elo-rating [dataset names & {:keys [series?]}]
+  (let [start (into {} (for [n names] [n 1500]))
+        update (fn [cum new]
+                 (let [team-a (:team-a new)
+                       team-b (:team-b new)
+                       avg-team-size (/ (+ (count team-a) (count team-b)) 2)
+                       team-a-rating (team-rating cum team-a)
+                       team-b-rating (team-rating cum team-b)
+                       e-a (/ 1 (+ 1 (Math/pow 10 (/ (- team-b-rating team-a-rating) 400))))
+                       e-b (- 1 e-a)
+                       s-a (case (keyword (:result new))
+                             :team-a-won 1
+                             :team-b-won 0
+                             0.5)
+                       s-b (- 1 s-a)
+                       k (* 32 avg-team-size)
+                       a-gain (/ (* k (- s-a e-a)) (count team-a))
+                       b-gain (/ (* k (- s-b e-b)) (count team-b))
+                       a-updated (reduce #(update %1 %2 + a-gain) cum team-a)]
+                   (println avg-team-size team-a-rating team-b-rating e-a e-b s-a s-b k a-gain b-gain)
+                   (reduce #(update %1 %2 + b-gain) a-updated team-b)))]
+    (if series?
+      (let [ratings (drop 1 (reductions update start dataset))]
+        (transpose ratings names))
+      (reduce update start dataset))))
+
+(def metric-name-to-fn {:win-rate win-rates
+                        :elo-point elo-rating})
 
 (defn metric-data [metric raw-data & {:keys [window-size vs series?]}]
   (let [metric-fn (metric metric-name-to-fn)
