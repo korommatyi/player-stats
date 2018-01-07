@@ -3,7 +3,7 @@
 (def dashboard-db
   {:y-setter {:only-vs? false
               :vs 3
-              :metric :elo-point
+              :metric :win-rate
               :window? false
               :window-size 5}
    :x-setter {:only-vs? false

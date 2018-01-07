@@ -27,8 +27,10 @@
                                (update %1 k conj new-val)) cum new))]
     (reduce mass-conj start vec-of-dicts)))
 
-(defn compute-metric [metric-fn raw-data & {:keys [window-size filters series?]}]
-  (let [filtered (if (seq filters) (reduce (fn [data f] (f data)) raw-data filters) raw-data)]
+(defn compute-metric [metric-fn raw-data & {:keys [window-size vs series?]}]
+  (let [filtered (if vs
+                   (filter (fn [game] (= vs (count (:team-a game)) (count (:team-b game)))) raw-data)
+                   raw-data)]
     (if window-size
       (if series?
         (let [names (known-names filtered)
@@ -56,16 +58,12 @@
 
 (def metric-name-to-fn {:win-rate win-rates})
 
-(defn xxx [raw-data metric & {:keys [vs window-size series?]}]
-  (let [filters (if vs [#(filter (fn [game] (= vs (count (:team-a game)) (count (:team-b game)))) %)] [])
-        metric-fn (metric metric-name-to-fn)]
-    (compute-metric metric-fn raw-data :filters filters :series? series? :window-size window-size)))
-
-(defn win-rate-datasets [raw-data]
-  (let [series-by-name (win-rate-series-by-name raw-data)]
-    (vec (for [[n series] series-by-name] {:data series
-                                           :label n
-                                           :fill false}))))
+(defn metric-data [metric raw-data & {:keys [window-size vs series?]}]
+  (let [metric-fn (metric metric-name-to-fn)
+        data (compute-metric metric-fn raw-data
+                             :window-size window-size
+                             :vs vs :series? series?)]
+    (for [[n d] data] {:data d :label n :fill false})))
 
 (def default-data {:labels ["2012" "2013" "2014" "2015" "2016"]
                    :datasets [{:data [5 10 15 20 25]
@@ -79,14 +77,27 @@
                                :backgroundColor "#F08080"
                                :fill false}]})
 
-(def default-params {:type "line"
+(def default-params {:type :line
                      :data default-data
                      :options {:tooltips {:mode "index"}}})
 
-(defn metric-calculator [metric raw-data options]
-  (let [data (filter-by-settings raw-data options)
-        labels (for [d data] (:date d))
-        out {:labels labels}]
-    (case (keyword metric)
-      :win-rate (assoc out :datasets (win-rate-datasets data))
-      default-data)))
+(def linechart-options
+  {:tooltips {:mode "index"
+              :itemSort (fn [a b _] (- (.-yLabel b) (.-yLabel a)))}})
+
+(defn labels [raw-data & {:keys [window-size]}]
+  (let [dates (for [r raw-data] (:date r))]
+    (if window-size
+      (map last (create-windows dates window-size))
+      dates)))
+
+(defn chart-data [metric-x metric-y raw-data]
+  (if (= :time (:metric metric-x))
+    (let [{:keys [window? window-size only-vs? vs metric]} metric-y
+          datasets (metric-data metric raw-data
+                               :window-size (if window? window-size)
+                               :vs (if only-vs? vs)
+                               :series? true)
+          labels (labels raw-data :window-size (if window? window-size))]
+      {:type :line :data {:labels labels :datasets datasets} :options linechart-options})
+    default-params))

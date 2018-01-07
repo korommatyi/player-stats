@@ -5,8 +5,8 @@
                  [re-frame "0.10.2"]
                  [venantius/accountant "0.2.3"]
                  [reagent-material-ui "0.2.5"]
-                 [cljsjs/chartjs "2.6.0-0"]
-                 [cljsjs/firebase "4.8.1-0"]]
+                 [cljsjs/firebase "4.8.1-0"]
+                 [cljsjs/react-chartjs-2 "2.0.5-1" :exclusions [cljsjs/react]]]
 
   :plugins [[lein-cljsbuild "1.1.5"]]
 

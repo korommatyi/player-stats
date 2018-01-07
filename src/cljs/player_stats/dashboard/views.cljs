@@ -8,37 +8,25 @@
             [cljsjs.material-ui]
             [cljsjs.react]
             [cljsjs.react.dom]
-            [cljsjs.chartjs]
+            [cljsjs.react-chartjs-2]
+            [goog.object :as obj]
             ))
 
 (defn flex-style [dir & {:or {} :as other}]
   (let [s {:display "flex" :flex-direction dir :justify-content "space-between"}]
     {:style (merge s other)}))
 
-(defn show-chart
-  [id params]
-  (let [context (.getContext (.getElementById js/document id) "2d")
-        chart-data params]
-      (js/Chart. context (clj->js chart-data))))
-
-(defn chartjs-component
-  [id data]
-  (reagent/create-class
-    {:component-did-mount #(show-chart id data)
-     :display-name "chartjs-component"
-     :reagent-render (fn [id data]
-                       [:div {:class "chart-container"
-                              :style {:position "relative"
-                                      :width "100vw"
-                                      :margin "auto"
-                                      :min-width 200
-                                      :flex 1}}
-                        [:canvas {:id id}]])}))
-
+(def line-chart (reagent/adapt-react-class (obj/get js/reactChartjs2 "Line")))
 
 (defn dashboard []
   (let [data @(re-frame/subscribe [::subs/chart-data])]
-    [chartjs-component "hello" data]))
+    (if (= :line (:type data))
+      [:div {:style {:position "relative"
+                     :width "100vw"
+                     :margin "auto"
+                     :min-width 200
+                     :flex 1}}
+       [line-chart {:data (:data data) :options (:options data)}]])))
 
 (defn num-field [{:keys [default]}]
   (let [val (reagent/atom (str default))
@@ -51,7 +39,7 @@
                       :onChange (fn [_ new-val]
                                   (reset! val new-val)
                                   (if (valid? new-val)
-                                    (on-save (js/Number. new-val))))
+                                    (on-save (js/parseInt new-val 10))))
                       :errorText (if (not (or (valid? @val) disabled))
                                    "Very funny... Now enter a valid integer." "")
                       :disabled disabled
