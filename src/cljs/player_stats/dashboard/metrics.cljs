@@ -27,10 +27,11 @@
                                (update %1 k conj new-val)) cum new))]
     (reduce mass-conj start vec-of-dicts)))
 
+(defn vs-filter [raw-data vs]
+  (filter (fn [game] (= vs (count (:team-a game)) (count (:team-b game)))) raw-data))
+
 (defn compute-metric [metric-fn raw-data & {:keys [window-size vs series?]}]
-  (let [filtered (if vs
-                   (filter (fn [game] (= vs (count (:team-a game)) (count (:team-b game)))) raw-data)
-                   raw-data)]
+  (let [filtered (if vs (vs-filter raw-data vs) raw-data)]
     (if window-size
       (if series?
         (let [names (known-names filtered)
@@ -63,7 +64,7 @@
         data (compute-metric metric-fn raw-data
                              :window-size window-size
                              :vs vs :series? series?)]
-    (for [[n d] data] {:data d :label n :fill false})))
+    (sort-by :label (for [[n d] data] {:data d :label n :fill false}))))
 
 (def default-data {:labels ["2012" "2013" "2014" "2015" "2016"]
                    :datasets [{:data [5 10 15 20 25]
@@ -85,19 +86,27 @@
   {:tooltips {:mode "index"
               :itemSort (fn [a b _] (- (.-yLabel b) (.-yLabel a)))}})
 
-(defn labels [raw-data & {:keys [window-size]}]
-  (let [dates (for [r raw-data] (:date r))]
+(defn labels [raw-data & {:keys [window-size vs]}]
+  (let [vs-filtered (if vs (vs-filter raw-data vs) raw-data)
+        dates (for [r vs-filtered] (:date r))]
     (if window-size
       (map last (create-windows dates window-size))
       dates)))
 
+(def colors ["aquamarine" "blanchedalmond" "blue" "blueviolet" "brown"
+             "cadetblue" "chocolate" "cornflowerblue" "crimson" "cyan" "gold" "orange"])
+
+(defn add-color [datasets]
+  (map (fn [dataset color] (into dataset {:borderColor color :backgroundColor color})) datasets colors))
+
 (defn chart-data [metric-x metric-y raw-data]
   (if (= :time (:metric metric-x))
     (let [{:keys [window? window-size only-vs? vs metric]} metric-y
-          datasets (metric-data metric raw-data
-                               :window-size (if window? window-size)
-                               :vs (if only-vs? vs)
-                               :series? true)
-          labels (labels raw-data :window-size (if window? window-size))]
+          datasets (add-color (metric-data metric raw-data
+                                           :window-size (if window? window-size)
+                                           :vs (if only-vs? vs)
+                                           :series? true))
+          labels (labels raw-data :window-size (if window? window-size)
+                         :vs (if only-vs? vs))]
       {:type :line :data {:labels labels :datasets datasets} :options linechart-options})
     default-params))
