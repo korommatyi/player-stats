@@ -15,16 +15,18 @@
  :login-and-start-listening-to-data
  (fn [_]
    (let [auth (js/firebase.auth)
-         provider (js/firebase.auth.GoogleAuthProvider.)
-         current-user (.-currentUser auth)]
-     (if current-user
-       (re-frame/dispatch [::register-logged-in-user (.-email current-user)])
-       (-> auth
-           (.signInWithPopup provider)
-           (.then (fn [result]
-                    (let [user (.-user result)
-                          email (.-email user)]
-                      (re-frame/dispatch [::register-logged-in-user email])))))))))
+         provider (js/firebase.auth.GoogleAuthProvider.)]
+     (.onAuthStateChanged
+      auth
+      (fn [user]
+        (if user
+          (re-frame/dispatch [::register-logged-in-user (.-email user)])
+          (-> auth
+              (.signInWithPopup provider)
+              (.then (fn [result]
+                       (let [user (.-user result)
+                             email (.-email user)]
+                         (re-frame/dispatch [::register-logged-in-user email])))))))))))
 
 (re-frame/reg-event-fx
  ::register-logged-in-user

@@ -79,7 +79,6 @@
                        a-gain (/ (* k (- s-a e-a)) (count team-a))
                        b-gain (/ (* k (- s-b e-b)) (count team-b))
                        a-updated (reduce #(update %1 %2 + a-gain) cum team-a)]
-                   (println avg-team-size team-a-rating team-b-rating e-a e-b s-a s-b k a-gain b-gain)
                    (reduce #(update %1 %2 + b-gain) a-updated team-b)))]
     (if series?
       (let [ratings (drop 1 (reductions update start dataset))]
@@ -116,6 +115,11 @@
   {:tooltips {:mode "index"
               :itemSort (fn [a b _] (- (.-yLabel b) (.-yLabel a)))}})
 
+(def bubblechart-options
+  {:showlines false
+   :tooltips {:callbacks {:label (fn [_ d]
+                                   (str (:label d)))}}})
+
 (defn labels [raw-data & {:keys [window-size vs]}]
   (let [vs-filtered (if vs (vs-filter raw-data vs) raw-data)
         dates (for [r vs-filtered] (:date r))]
@@ -129,14 +133,27 @@
 (defn add-color [datasets]
   (map (fn [dataset color] (into dataset {:borderColor color :backgroundColor color})) datasets colors))
 
+(defn bubble-plot-data [x-data y-data]
+  (let [names (clojure.set/intersection (set (for [d x-data] (:label d)))
+                                        (set (for [d y-data] (:label d))))
+        x-common (filter #(names (:label %)) x-data)
+        y-common (filter #(names (:label %)) y-data)]
+    (map (fn [x y] {:label (:label x) :data [{:x (:data x) :y (:data y) :r 5}]}) x-common y-common)))
+
 (defn chart-data [metric-x metric-y raw-data]
-  (if (= :time (:metric metric-x))
-    (let [{:keys [window? window-size only-vs? vs metric]} metric-y
-          datasets (add-color (metric-data metric raw-data
-                                           :window-size (if window? window-size)
-                                           :vs (if only-vs? vs)
-                                           :series? true))
-          labels (labels raw-data :window-size (if window? window-size)
-                         :vs (if only-vs? vs))]
-      {:type :line :data {:labels labels :datasets datasets} :options linechart-options})
-    default-params))
+  (let [f (fn [metric-opts raw-data series?]
+            (let [{:keys [window? window-size only-vs? vs metric]} metric-opts]
+              (metric-data metric raw-data
+                           :window-size (if window? window-size)
+                           :vs (if only-vs? vs)
+                           :series? series?)))]
+    (if (= :time (:metric metric-x))
+      (let [datasets (add-color (f metric-y raw-data true))
+            {:keys [window? window-size only-vs? vs]} metric-y
+            labels (labels raw-data :window-size (if window? window-size)
+                           :vs (if only-vs? vs))]
+        {:type :line :data {:labels labels :datasets datasets} :options linechart-options})
+      (let [x-data (f metric-x raw-data false)
+            y-data (f metric-y raw-data false)
+            datasets (add-color (bubble-plot-data x-data y-data))]
+        {:type :bubble :data {:datasets datasets}}))))

@@ -18,15 +18,19 @@
 
 (def line-chart (reagent/adapt-react-class (obj/get js/reactChartjs2 "Line")))
 
+(def bubble-chart (reagent/adapt-react-class (obj/get js/reactChartjs2 "Bubble")))
+
 (defn dashboard []
   (let [data @(re-frame/subscribe [::subs/chart-data])]
-    (if (= :line (:type data))
-      [:div {:style {:position "relative"
-                     :width "100vw"
-                     :margin "auto"
-                     :min-width 200
-                     :flex 1}}
-       [line-chart {:data (:data data) :options (:options data)}]])))
+    [:div {:style {:position "relative"
+                   :width "100vw"
+                   :margin "auto"
+                   :min-width 200
+                   :flex 1}}
+     (case (:type data)
+       :line [line-chart {:data (:data data) :options (:options data)}]
+       :bubble [bubble-chart {:data (:data data) :options (:options data)}]
+       [:div])]))
 
 (defn num-field [{:keys [default]}]
   (let [val (reagent/atom (str default))

@@ -46,7 +46,7 @@
      :source-paths ["src/cljs"]
      :compiler     {:main            player-stats.core
                     :output-to       "resources/public/js/compiled/app.js"
-                    :optimizations   :advanced
+                    :optimizations   :simple
                     :closure-defines {goog.DEBUG false}
                     :pretty-print    false}}
 
