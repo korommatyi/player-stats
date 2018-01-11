@@ -53,10 +53,15 @@
 
 (defn- normalize-data [data]
   (let [normalize-team #(sort (vals %))
+        str-pad (fn [d]
+                  (if (> d 9) (str d) (str "0" d)))
         get-day (fn [d]
                   (let [day (.getDate d)]
-                    (if (> day 9) (str day) (str "0" day))))
-        normalize-date (fn [d] (str (.getFullYear d) "/" (+ 1 (.getMonth d)) "/" (get-day d)))]
+                    (str-pad day)))
+        get-month (fn [d]
+                    (let [month (+ 1 (.getMonth d))]
+                      (str-pad month)))
+        normalize-date (fn [d] (str (.getFullYear d) "/" (get-month d) "/" (get-day d)))]
     {:team-a (normalize-team (:team-a data))
      :team-b (normalize-team (:team-b data))
      :result (:result data)
