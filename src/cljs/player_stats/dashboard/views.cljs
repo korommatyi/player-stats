@@ -8,6 +8,7 @@
             [cljsjs.material-ui]
             [cljsjs.react]
             [cljsjs.react.dom]
+            [cljsjs.chartjs]
             [cljsjs.react-chartjs-2]
             [goog.object :as obj]
             ))
@@ -16,9 +17,9 @@
   (let [s {:display "flex" :flex-direction dir :justify-content "space-between"}]
     {:style (merge s other)}))
 
-(def line-chart (reagent/adapt-react-class (obj/get js/reactChartjs2 "Line")))
+(def line-chart (reagent/adapt-react-class (obj/get js/ReactChartjs2 "Line")))
 
-(def bubble-chart (reagent/adapt-react-class (obj/get js/reactChartjs2 "Bubble")))
+(def bubble-chart (reagent/adapt-react-class (obj/get js/ReactChartjs2 "Bubble")))
 
 (defn dashboard []
   (let [data @(re-frame/subscribe [::subs/chart-data])]

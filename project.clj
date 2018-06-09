@@ -1,12 +1,13 @@
 (defproject player-stats "0.1.0-SNAPSHOT"
-  :dependencies [[org.clojure/clojure "1.8.0"]
-                 [org.clojure/clojurescript "1.9.908"]
-                 [reagent "0.7.0" :exclusions [cljsjs/react-dom cljsjs/react]]
-                 [re-frame "0.10.2"]
-                 [venantius/accountant "0.2.3"]
+  :dependencies [[org.clojure/clojure "1.9.0"]
+                 [org.clojure/clojurescript "1.10.238"]
+                 [reagent "0.8.1" :exclusions [cljsjs/react-dom cljsjs/react]]
+                 [re-frame "0.10.5"]
+                 [venantius/accountant "0.2.4"]
                  [reagent-material-ui "0.2.5"]
-                 [cljsjs/firebase "4.8.1-0"]
-                 [cljsjs/react-chartjs-2 "2.0.5-1" :exclusions [cljsjs/react]]]
+                 [cljsjs/firebase "5.0.4-1"]
+                 [cljsjs/react-chartjs-2 "2.7.0-0" :exclusions [cljsjs/react]]
+                 [cljsjs/chartjs "2.7.0-0"]]
 
   :plugins [[lein-cljsbuild "1.1.5"]]
 
@@ -46,7 +47,7 @@
      :source-paths ["src/cljs"]
      :compiler     {:main            player-stats.core
                     :output-to       "resources/public/js/compiled/app.js"
-                    :optimizations   :simple
+                    :optimizations   :advanced
                     :closure-defines {goog.DEBUG false}
                     :pretty-print    false}}
 
