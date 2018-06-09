@@ -1,7 +1,7 @@
 (defproject player-stats "0.1.0-SNAPSHOT"
-  :dependencies [[org.clojure/clojure "1.9.0"]
+  :dependencies [[org.clojure/clojure "1.8.0"]
                  [org.clojure/clojurescript "1.10.238"]
-                 [reagent "0.8.1" :exclusions [cljsjs/react-dom cljsjs/react]]
+                 [reagent "0.7.0" :exclusions [cljsjs/react-dom cljsjs/react]]
                  [re-frame "0.10.5"]
                  [venantius/accountant "0.2.4"]
                  [reagent-material-ui "0.2.5"]
@@ -9,7 +9,7 @@
                  [cljsjs/react-chartjs-2 "2.7.0-0" :exclusions [cljsjs/react]]
                  [cljsjs/chartjs "2.7.0-0"]]
 
-  :plugins [[lein-cljsbuild "1.1.5"]]
+  :plugins [[lein-cljsbuild "1.1.7"]]
 
   :min-lein-version "2.5.3"
 
@@ -23,11 +23,9 @@
 
   :profiles
   {:dev
-   {:dependencies [[binaryage/devtools "0.9.4"]
-                   [figwheel-sidecar "0.5.13"]
-                   [com.cemerick/piggieback "0.2.2"]]
+   {:dependencies [[binaryage/devtools "0.9.10"]]
 
-    :plugins      [[lein-figwheel "0.5.13"]]}}
+    :plugins      [[lein-figwheel "0.5.16"]]}}
 
   :cljsbuild
   {:builds
@@ -48,7 +46,8 @@
      :compiler     {:main            player-stats.core
                     :output-to       "resources/public/js/compiled/app.js"
                     :optimizations   :advanced
-                    :closure-defines {goog.DEBUG false}
+                    :closure-defines {goog.DEBUG false
+                                      process.env/NODE_ENV "production"}
                     :pretty-print    false}}
 
 
