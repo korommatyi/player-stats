@@ -31,7 +31,7 @@
        [mui/TableHeaderColumn]
        [mui/TableHeaderColumn "The Geniuses"]]]
      [mui/TableBody {:showRowHover true :displayRowCheckbox false}
-      (for [game games]
+      (for [game (sort-by :date > games)]
         ^{:key (hash game)} [game-entry game])]]))
 
 (defn games-panel []
