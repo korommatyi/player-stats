@@ -3,15 +3,6 @@
   ;;           [player-stats.subs :as core-subs])
   )
 
-(defn winners [game]
-  (case (keyword (:result game))
-    :team-a-won (:team-a game)
-    :team-b-won (:team-b game)
-    []))
-
-(defn players [game]
-  (into (:team-a game) (:team-b game)))
-
 (defn create-windows [data window-size]
   (if (< (count data) window-size)
     [data]
@@ -46,10 +37,15 @@
 (defn win-rates [dataset names & {:keys [series?]}]
   (let [start (for [n names] [n {:won 0 :played 0}])
         update (fn [cum new]
-                 (let [w (set (winners new))
-                       all (set (players new))]
-                   (for [[n {:keys [won played]}] cum] [n {:won (if (w n) (+ 1 won) won)
-                                                           :played (if (all n) (+ 1 played) played)}])))
+                 (let [gain-a (case (keyword (:result new))
+                                :team-a-won 1
+                                :team-b-won 0
+                                0.5)
+                       gain-b (- 1 gain-a)
+                       gain (into (zipmap (:team-a new) (repeat gain-a)) (zipmap (:team-b new) (repeat gain-b)))]
+                   (for [[n {:keys [won played] :as old}] cum] [n (if (contains? gain n)
+                                                            {:won (+ (gain n) won) :played (+ 1 played)}
+                                                            old)])))
         to-rate #(for [[n {:keys [won played]}] %] [n (if (> played 0) (/ won played) 0)])]
     (if series?
       (let [stats (drop 1 (reductions update start dataset))]
